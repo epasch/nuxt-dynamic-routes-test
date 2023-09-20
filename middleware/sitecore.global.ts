@@ -1,4 +1,4 @@
-export default defineNuxtRouteMiddleware(to => { 
+export default defineNuxtRouteMiddleware(async to => { 
     // check if route already matched
     if (to.matched.length > 0) return;
 
@@ -8,14 +8,14 @@ export default defineNuxtRouteMiddleware(to => {
         const router = useRouter();
         const routeName = getRouteName(to.path);
         if(!router.hasRoute(routeName)) {
-            const template = 'article'; //await useAsyncDataAsPromise<string>(() => resolveTemplateFn(to));
+            const template = await useAsyncDataAsPromise<string>(() => resolveTemplateFn(to));
             if (template) {
-                const randomId = Math.ceil(Math.random() * 100);
+                // const randomId = Math.ceil(Math.random() * 100);
                 router.addRoute({
                     path: to.path,
                     name: routeName,
                     props: {
-                        id: randomId
+                        id: 123
                     },
                     component: () => import(`../pages/templates/${ template }.vue`).then(r => r.default || r)
                 });

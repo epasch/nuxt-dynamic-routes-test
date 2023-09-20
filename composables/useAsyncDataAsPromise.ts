@@ -1,15 +1,14 @@
 export default function<T>(fn: () => Promise<T>): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-        const { data, error, status } = useAsyncData<T>(fn);
-
-        const unwatch = watch(status, updates => {
-            if (updates === 'success') {
-                resolve(data.value as T);
-                unwatch();
-            }
-
-            if (updates === 'error') { 
-                reject(error);
+    return new Promise<T>(async (resolve, reject) => {
+        const { pending, data, error} = useAsyncData<T>(fn);
+        const unwatch = watch([pending, data, error], ([pendingUpdates, dataUpdates, errorUpdates]) => {
+            if (!pendingUpdates) {
+                if (errorUpdates) {
+                    reject(errorUpdates);
+                } else {
+                    resolve(dataUpdates as T);
+                }
+                
                 unwatch();
             }
         });
